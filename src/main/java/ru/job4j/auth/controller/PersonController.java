@@ -5,17 +5,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.auth.domain.Person;
-import ru.job4j.auth.repository.PersonRepository;
+import ru.job4j.auth.exception.ResourceNotFoundException;
+import ru.job4j.auth.service.PersonService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/person")
 public class PersonController {
-    private final PersonRepository persons;
+    private final PersonService persons;
     private BCryptPasswordEncoder encoder;
 
-    public PersonController(PersonRepository persons,
+    public PersonController(PersonService persons,
                             BCryptPasswordEncoder encoder) {
         this.persons = persons;
         this.encoder = encoder;
@@ -45,15 +46,17 @@ public class PersonController {
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
-        this.persons.save(person);
+        Person personUpdate = this.persons.findById(person.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Person not exist with id: " + person.getId()));
+        this.persons.save(personUpdate);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
-        Person person = new Person();
-        person.setId(id);
-        this.persons.delete(person);
+        Person personDelete = this.persons.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not exist with id: " + id));
+        this.persons.delete(personDelete);
         return ResponseEntity.ok().build();
     }
 }
