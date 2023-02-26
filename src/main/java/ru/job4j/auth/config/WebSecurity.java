@@ -7,25 +7,26 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.context.annotation.Bean;
 import ru.job4j.auth.filter.JWTAuthenticationFilter;
 import ru.job4j.auth.filter.JWTAuthorizationFilter;
-import ru.job4j.auth.service.UserDetailsServiceImpl;
+import ru.job4j.auth.service.PersonDetailsServiceImpl;
 
 import static ru.job4j.auth.filter.JWTAuthenticationFilter.SIGN_UP_URL;
 
 
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
-    private UserDetailsServiceImpl userDetailsService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private PersonDetailsServiceImpl personDetailsService;
+    private PasswordEncoder encoder;
 
-    public WebSecurity(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.userDetailsService = userDetailsService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    public WebSecurity(PersonDetailsServiceImpl personDetailsService, PasswordEncoder encoder) {
+        this.personDetailsService = personDetailsService;
+        this.encoder = encoder;
     }
 
     @Override
@@ -42,7 +43,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+        auth.userDetailsService(personDetailsService).passwordEncoder(encoder);
     }
 
     @Bean

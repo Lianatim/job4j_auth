@@ -17,11 +17,11 @@ public class PersonService {
     }
 
     public List<Person> findAll() {
-        return  personRepository.findAll();
+        return personRepository.findAll();
     }
 
     public Optional<Person> findById(int id) {
-       return personRepository.findById(id);
+        return personRepository.findById(id);
     }
 
     public Person save(Person person) {
@@ -30,5 +30,9 @@ public class PersonService {
 
     public void delete(Person person) {
         personRepository.delete(person);
+    }
+
+    public Person findByUsername(String login) {
+       return personRepository.findByLogin(login);
     }
 }
