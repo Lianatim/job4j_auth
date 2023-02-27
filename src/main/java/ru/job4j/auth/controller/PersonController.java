@@ -1,12 +1,13 @@
 package ru.job4j.auth.controller;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.auth.domain.Person;
 import ru.job4j.auth.exception.ResourceNotFoundException;
+import ru.job4j.auth.exception.UserAlreadyExistsException;
 import ru.job4j.auth.service.PersonService;
 
 import java.util.List;
@@ -30,11 +31,9 @@ public class PersonController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Person> findById(@PathVariable int id) {
-        var person = this.people.findById(id);
-        return new ResponseEntity<>(
-                person.orElse(new Person()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
-        );
+        Person person = this.people.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not exist with id: " + id));
+        return new ResponseEntity<>(person, HttpStatus.OK);
     }
 
     @PostMapping("/")
@@ -62,8 +61,16 @@ public class PersonController {
     }
 
     @PostMapping("/sign-up")
-    public void signUp(@RequestBody Person person) {
+    public ResponseEntity<Void> signUp(@RequestBody Person person) {
+        if (person.getLogin() == null || person.getPassword() == null) {
+            throw new NullPointerException("Username and password mustn't be empty");
+        }
         person.setPassword(encoder.encode(person.getPassword()));
-        people.save(person);
+        try {
+            people.save(person);
+        } catch (DataIntegrityViolationException e) {
+            throw new UserAlreadyExistsException("Person with this id already exists");
+        }
+        return ResponseEntity.ok().build();
     }
 }

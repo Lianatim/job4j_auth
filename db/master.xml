@@ -5,6 +5,7 @@
         xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
      http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
-    <include file="scripts/001_ddl_create_accident_type_rule_accident_rule_table.sql" relativeToChangelogFile="true"/>
+    <include file="scripts/001_ddl_create_person_table.sql" relativeToChangelogFile="true"/>
+    <include file="scripts/002_ddl_alter_person_table.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
