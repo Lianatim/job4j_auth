@@ -25,8 +25,12 @@ public class PersonController {
     }
 
     @GetMapping("/all")
-    public List<Person> findAll() {
-        return this.people.findAll();
+    public ResponseEntity<List<Person>> findAll() {
+        List<Person> peopleEntity = people.findAll();
+        if (peopleEntity.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(peopleEntity, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
