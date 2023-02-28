@@ -32,7 +32,7 @@ public class PersonService {
         personRepository.delete(person);
     }
 
-    public Person findByUsername(String login) {
+    public Optional<Person> findByUsername(String login) {
        return personRepository.findByLogin(login);
     }
 }

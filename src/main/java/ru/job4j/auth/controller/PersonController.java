@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.auth.domain.Person;
+import ru.job4j.auth.dto.PersonDto;
 import ru.job4j.auth.exception.ResourceNotFoundException;
 import ru.job4j.auth.exception.UserAlreadyExistsException;
 import ru.job4j.auth.service.PersonService;
@@ -76,5 +77,15 @@ public class PersonController {
             throw new UserAlreadyExistsException("Person with this id already exists");
         }
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<String> updatePassword(
+            @RequestBody PersonDto personDto) {
+        Person person = this.people.findByUsername(personDto.getLogin())
+                .orElseThrow(() -> new ResourceNotFoundException("Person not exist with login: " + personDto.getLogin()));
+        person.setPassword(personDto.getPassword());
+        people.save(person);
+        return ResponseEntity.ok("Resource password updated");
     }
 }
