@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.auth.domain.Person;
 import ru.job4j.auth.dto.PersonDto;
@@ -11,9 +12,12 @@ import ru.job4j.auth.exception.ResourceNotFoundException;
 import ru.job4j.auth.exception.UserAlreadyExistsException;
 import ru.job4j.auth.service.PersonService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/person")
 public class PersonController {
     private final PersonService people;
@@ -42,7 +46,7 @@ public class PersonController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Person> create(@RequestBody Person person) {
+    public ResponseEntity<Person> create(@Valid @RequestBody Person person) {
         return new ResponseEntity<>(
                 this.people.save(person),
                 HttpStatus.CREATED
@@ -50,7 +54,7 @@ public class PersonController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Person person) {
+    public ResponseEntity<Void> update(@Valid @RequestBody Person person) {
         Person personUpdate = this.people.findById(person.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Person not exist with id: " + person.getId()));
         this.people.save(personUpdate);
@@ -58,7 +62,7 @@ public class PersonController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
+    public ResponseEntity<Void> delete(@PathVariable @Min(0) int id) {
         Person personDelete = this.people.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not exist with id: " + id));
         this.people.delete(personDelete);
@@ -66,10 +70,7 @@ public class PersonController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<Void> signUp(@RequestBody Person person) {
-        if (person.getLogin() == null || person.getPassword() == null) {
-            throw new NullPointerException("Username and password mustn't be empty");
-        }
+    public ResponseEntity<Void> signUp(@Valid @RequestBody Person person) {
         person.setPassword(encoder.encode(person.getPassword()));
         try {
             people.save(person);
@@ -80,8 +81,8 @@ public class PersonController {
     }
 
     @PatchMapping("/update")
-    public ResponseEntity<String> updatePassword(
-            @RequestBody PersonDto personDto) {
+    public ResponseEntity<String> updatePassword(@Valid
+                                                 @RequestBody PersonDto personDto) {
         Person person = this.people.findByUsername(personDto.getLogin())
                 .orElseThrow(() -> new ResourceNotFoundException("Person not exist with login: " + personDto.getLogin()));
         person.setPassword(personDto.getPassword());
